@@ -310,6 +310,27 @@ class BaseAppSettingsHelper:
 
         return self.get_default_value(setting_name)
 
+    def is_value_from_deprecated_setting(self, setting_name):
+        """
+        Returns a boolean to help developers determine where a setting value
+        came from when dealing settings that replace deprecated settings.
+        Returns ``True`` when:
+
+        -   The setting named by ``setting_name`` is a replacement for a
+            deprecated setting.
+        -   The value returned by self.get_raw() for the setting comes from a
+            user-defined Django setting that uses the deprecated setting name
+        """
+        if not self.in_defaults(setting_name):
+            raise ValueError('%s is not a valid setting name' % setting_name)
+        if(
+            not self.is_overridden(setting_name) and
+            setting_name in self._replacement_settings
+        ):
+            depr = self._replacement_settings[setting_name]
+            return self.is_overridden(depr.setting_name)
+        return False
+
     def get_raw(self, setting_name, enforce_type=None):
         """
         A wrapper for self.get_raw_value(), that caches the raw setting value
