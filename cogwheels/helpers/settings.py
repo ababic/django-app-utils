@@ -297,7 +297,7 @@ class BaseAppSettingsHelper:
         """
         if setting_name in self._deprecated_settings:
             depr = self._deprecated_settings[setting_name]
-            depr.warn_if_referenced_directly()
+            depr.warn_if_setting_attribute_referenced()
 
         if self.is_overridden(setting_name):
             return self.get_user_defined_value(setting_name)
@@ -305,7 +305,7 @@ class BaseAppSettingsHelper:
         if setting_name in self._replacement_settings:
             depr = self._replacement_settings[setting_name]
             if self.is_overridden(depr.setting_name):
-                depr.warn_if_deprecated_value_used_by_replacement()
+                depr.warn_if_user_using_old_setting_name()
                 return self.get_user_defined_value(depr.setting_name)
 
         return self.get_default_value(setting_name)
