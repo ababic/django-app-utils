@@ -1,6 +1,45 @@
 import warnings
 
 
+COMMON_ATTRIBUTE_WARNING_FORMAT = (
+    "Please update your code to reference 'settings.{replacement_name}' "
+    "instead, as continuing to reference 'settings.{setting_name}' will raise "
+    "an AttributeError after support is removed in {removed_in_version}."
+)
+RENAMED_ATTRIBUTE_WARNING_FORMAT = (
+    "The {setting_name} settings helper attribute has been renamed to "
+    "{replacement_name}. "
+) + COMMON_ATTRIBUTE_WARNING_FORMAT
+
+REPLACED_ATTRIBUTE_WARNING_FORMAT = (
+    "The {setting_name} settings helper attribute is deprecated in favour "
+    "of using {replacement_name}. "
+) + COMMON_ATTRIBUTE_WARNING_FORMAT
+
+SIMPLE_DEPRECATION_WARNING_FORMAT = (
+    "The {setting_name} settings helper attribute is deprecated. Please "
+    "remove any references to 'settings.{setting_name}' from your project, as "
+    "this will raise an AttributeError after support is removed in "
+    "{removed_in_version}."
+)
+
+COMMON_OLD_SETTING_USED_WARNING_FORMAT = (
+    "Please update your Django settings to use the new setting, otherwise the "
+    "app will revert to its default behaviour in {removed_in_version} ("
+    "when support for {prefix}_{setting_name} will be removed entirely)."
+)
+
+RENAMED_OLD_SETTING_USED_WARNING_FORMAT = (
+    "The {prefix}_{setting_name} setting has been renamed to "
+    "{prefix}_{replacement_name}. "
+) + COMMON_OLD_SETTING_USED_WARNING_FORMAT
+
+REPLACED_OLD_SETTING_USER_WARNING_FORMAT = (
+    "The {prefix}_{setting_name} setting is deprecated in favour of using "
+    "{prefix}_{replacement_name}. "
+) + COMMON_OLD_SETTING_USED_WARNING_FORMAT
+
+
 class DeprecatedAppSetting:
     """
     An instance of ``DeprecatedAppSetting`` stores details about a deprecated
@@ -48,40 +87,14 @@ class DeprecatedAppSetting:
     def warn_if_setting_attribute_referenced(self):
         if self.replacement_name is not None:
             if self.is_renamed:
-                self._raise_warning(
-                    "The '{setting_name}' settings helper attribute has been renamed to "
-                    "'{replacement_name}'. Please update your code to reference "
-                    "'settings.{replacement_name}' instead, as continuing to reference "
-                    "'settings.{setting_name}' will raise an AttributeError after support is "
-                    "removed in {removed_in_version}."
-                )
+                self._raise_warning(RENAMED_ATTRIBUTE_WARNING_FORMAT)
                 return
-            self._raise_warning(
-                "The '{setting_name}' settings helper attribute is deprecated in favour of using "
-                "'{replacement_name}'. Please update your code to reference "
-                "'settings.{replacement_name}' instead, as continuing to reference "
-                "'settings.{setting_name}' will raise an AttributeError after support is removed in "
-                "{removed_in_version}."
-            )
+            self._raise_warning(REPLACED_ATTRIBUTE_WARNING_FORMAT)
             return
-        self._raise_warning(
-            "The '{setting_name}' settings helper attribute is deprecated. Please remove any "
-            "references to 'settings.{setting_name}' from your project, as this will raise an "
-            "AttributeError after support is removed in {removed_in_version}."
-        )
+        self._raise_warning(SIMPLE_DEPRECATION_WARNING_FORMAT)
 
     def warn_if_user_using_old_setting_name(self):
         if self.is_renamed:
-            self._raise_warning(
-                "The '{prefix}{setting_name}' setting has been renamed to "
-                "'{prefix}{replacement_name}'. Please update your Django settings to use the new "
-                "setting name, otherwise the app will resort to default behaviour once support for "
-                "the old setting is removed in {removed_in_version}.",
-            )
+            self._raise_warning(RENAMED_OLD_SETTING_USED_WARNING_FORMAT)
             return
-        self._raise_warning(
-            "The '{prefix}{setting_name}' setting is deprecated in favour of using "
-            "'{prefix}{replacement_name}'. Please update your Django settings to use the new "
-            "setting, otherwise the app will resort to default behaviour once support for the old "
-            "setting is removed in {removed_in_version}.",
-        )
+        self._raise_warning(REPLACED_OLD_SETTING_USER_WARNING_FORMAT)
