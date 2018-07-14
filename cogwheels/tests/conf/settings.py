@@ -15,6 +15,12 @@ class TestAppSettingsHelper(BaseAppSettingsHelper):
             'REPLACED_SETTING_OLD',
             replaced_by='REPLACED_SETTING_NEW',
             warning_category=PendingDeprecationWarning,
+            additional_guidance=(
+                "REPLACED_SETTING_NEW offers much greater flexibility, whilst "
+                "also allowing to change X without changing Z. Check out the "
+                "version X.X release notes for more info: "
+                "https://your-django-project.readthedocs.io/en/latest/releases/X.X.html"
+            )
         ),
     )
 
