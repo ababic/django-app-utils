@@ -52,7 +52,7 @@ class DeprecatedAppSetting:
                     "The '{setting_name}' settings helper attribute has been renamed to "
                     "'{replacement_name}'. Please update your code to reference "
                     "'settings.{replacement_name}' instead, as continuing to reference "
-                    "'settings.{setting_name}' will raise an AttributeError once support is "
+                    "'settings.{setting_name}' will raise an AttributeError after support is "
                     "removed in {removed_in_version}."
                 )
                 return
@@ -60,14 +60,14 @@ class DeprecatedAppSetting:
                 "The '{setting_name}' settings helper attribute is deprecated in favour of using "
                 "'{replacement_name}'. Please update your code to reference "
                 "'settings.{replacement_name}' instead, as continuing to reference "
-                "'settings.{setting_name}' will raise an AttributeError once support is removed in "
+                "'settings.{setting_name}' will raise an AttributeError after support is removed in "
                 "{removed_in_version}."
             )
             return
         self._raise_warning(
-            "The {setting_name} settings helper attribute is deprecated. Please remove any "
+            "The '{setting_name}' settings helper attribute is deprecated. Please remove any "
             "references to 'settings.{setting_name}' from your project, as this will raise an "
-            "AttributeError once support is removed in {removed_in_version}."
+            "AttributeError after support is removed in {removed_in_version}."
         )
 
     def warn_if_user_using_old_setting_name(self):
