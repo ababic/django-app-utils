@@ -53,6 +53,26 @@ class TestRenamedSetting(AppSettingTestCase):
             str(cm.warning)
         )
 
+    def test_is_value_from_deprecated_setting_returns_false_when_neither_setting_is_overridden(self):
+        self.assertIs(
+            False,
+            self.appsettingshelper.is_value_from_deprecated_setting('RENAMED_SETTING_NEW')
+        )
+
+    @override_settings(COGWHEELS_TESTS_RENAMED_SETTING_NEW='somevalue')
+    def test_is_value_from_deprecated_setting_returns_false_if_the_new_setting_is_overridden(self):
+        self.assertIs(
+            False,
+            self.appsettingshelper.is_value_from_deprecated_setting('RENAMED_SETTING_NEW')
+        )
+
+    @override_settings(COGWHEELS_TESTS_RENAMED_SETTING_OLD='somevalue')
+    def test_is_value_from_deprecated_setting_returns_true_if_the_old_setting_is_overridden(self):
+        self.assertIs(
+            True,
+            self.appsettingshelper.is_value_from_deprecated_setting('RENAMED_SETTING_NEW')
+        )
+
 
 class TestReplacedSetting(AppSettingTestCase):
 
@@ -95,4 +115,24 @@ class TestReplacedSetting(AppSettingTestCase):
         self.assertIn(
             self.appsettingshelper.deprecations[2].additional_guidance,
             message
+        )
+
+    def test_is_value_from_deprecated_setting_returns_false_when_neither_setting_is_overridden(self):
+        self.assertIs(
+            False,
+            self.appsettingshelper.is_value_from_deprecated_setting('REPLACED_SETTING_NEW')
+        )
+
+    @override_settings(COGWHEELS_TESTS_REPLACED_SETTING_NEW='somevalue')
+    def test_is_value_from_deprecated_setting_returns_false_if_the_new_setting_is_overridden(self):
+        self.assertIs(
+            False,
+            self.appsettingshelper.is_value_from_deprecated_setting('REPLACED_SETTING_NEW')
+        )
+
+    @override_settings(COGWHEELS_TESTS_REPLACED_SETTING_OLD='somevalue')
+    def test_is_value_from_deprecated_setting_returns_true_if_the_old_setting_is_overridden(self):
+        self.assertIs(
+            True,
+            self.appsettingshelper.is_value_from_deprecated_setting('REPLACED_SETTING_NEW')
         )
