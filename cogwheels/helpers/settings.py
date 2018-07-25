@@ -264,7 +264,7 @@ class BaseAppSettingsHelper:
     def _get_raw_setting_value(self, setting_name):
         """
         Returns the value of the app setting named by ``setting_name``,
-        exactly as it has been defined in the defaults modul or a user's
+        exactly as it has been defined in the defaults module or a user's
         Django settings.
 
         If the requested setting is deprecated, a suitable deprecation
@@ -312,8 +312,9 @@ class BaseAppSettingsHelper:
             not self.is_overridden(setting_name) and
             setting_name in self._replacement_settings
         ):
-            depr = self._replacement_settings[setting_name]
-            return self.is_overridden(depr.setting_name)
+            deprecations = self._replacement_settings[setting_name]
+            return len(deprecations) == 1 and self.is_overridden(
+                deprecations[0].setting_name)
         return False
 
     def get(self, setting_name, enforce_type=None, silence_warnings=False):
