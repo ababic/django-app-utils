@@ -1,3 +1,4 @@
+from collections import defaultdict
 from importlib import import_module
 from django.conf import settings as django_settings
 from django.core.signals import setting_changed
@@ -10,7 +11,7 @@ from cogwheels import (
 from cogwheels.exceptions.deprecations import (
     ImproperlyConfigured,
     IncorrectDeprecationsValueType, InvalidDeprecationDefinition,
-    DuplicateDeprecationError, DuplicateDeprecationReplacementError,
+    DuplicateDeprecationError,
 )
 from .utils import AttrRefererToMethodHelper
 
@@ -151,7 +152,7 @@ class BaseAppSettingsHelper:
             )
 
         self._deprecated_settings = {}
-        self._replacement_settings = {}
+        self._replacement_settings = defaultdict(list)
 
         for item in self._deprecations:
             item.prefix = self._prefix
@@ -184,17 +185,6 @@ class BaseAppSettingsHelper:
 
             if item.replacement_name:
 
-                if item.replacement_name in self._replacement_settings:
-                    raise DuplicateDeprecationReplacementError(
-                        "The replacement setting name for each deprecation "
-                        "definition must be unique, but '{setting_name}' has "
-                        "been used more than once for {helper_class}."
-                        .format(
-                            setting_name=item.replacement_name,
-                            helper_class=self.__class__.__name__,
-                        )
-                    )
-
                 if not self.in_defaults(item.replacement_name):
                     raise InvalidDeprecationDefinition(
                         "There is an issue with one of your settings "
@@ -208,7 +198,7 @@ class BaseAppSettingsHelper:
                         )
                     )
 
-                self._replacement_settings[item.replacement_name] = item
+                self._replacement_settings[item.replacement_name].append(item)
 
     def reset_caches(self, **kwargs):
         self._raw_cache = {}
@@ -280,9 +270,9 @@ class BaseAppSettingsHelper:
         If the requested setting is deprecated, a suitable deprecation
         warning is raised to help inform developers of the change.
 
-        If the requested setting replaces a deprecated setting, and no user
-        defined setting name is defined using the new name, the method will
-        look for a user defined setting value using the deprecated setting
+        If the requested setting replaces a single deprecated setting, and no
+        user defined setting name is defined using the new name, the method
+        will look for a user defined setting value using the deprecated setting
         name, and return that if found. A deprecation warning will also be
         raised.
 
@@ -297,8 +287,9 @@ class BaseAppSettingsHelper:
             return self.get_user_defined_value(setting_name)
 
         if setting_name in self._replacement_settings:
-            depr = self._replacement_settings[setting_name]
-            if self.is_overridden(depr.setting_name):
+            deprecations = self._replacement_settings[setting_name]
+            depr = deprecations[0]
+            if len(deprecations) == 1 and self.is_overridden(depr.setting_name):
                 depr.warn_if_user_using_old_setting_name()
                 return self.get_user_defined_value(depr.setting_name)
 
@@ -325,7 +316,7 @@ class BaseAppSettingsHelper:
             return self.is_overridden(depr.setting_name)
         return False
 
-    def get(self, setting_name, enforce_type=None):
+    def get(self, setting_name, enforce_type=None, silence_warnings=False):
         """
         A wrapper for self.get_value(), that caches the raw setting value
         for faster future access, and, optionally checks that the
