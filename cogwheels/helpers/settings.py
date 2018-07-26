@@ -261,7 +261,7 @@ class BaseAppSettingsHelper:
         message += ' ' + additional_text.format(**text_format_kwargs)
         raise error_class(message)
 
-    def _get_raw_setting_value(self, setting_name):
+    def _get_raw_value(self, setting_name, accept_deprecated=''):
         """
         Returns the value of the app setting named by ``setting_name``,
         exactly as it has been defined in the defaults module or a user's
@@ -276,6 +276,10 @@ class BaseAppSettingsHelper:
         name, and return that if found. A deprecation warning will also be
         raised.
 
+        If the requested setting replaces multiple deprecated settings, the
+        ``accept_deprecated`` keyword argument can be used to specify which of
+        those deprecated settings to accept as the value if defined by a user.
+
         If no override value was found in the Django setting, then the
         relevant value from the defaults module is returned.
         """
@@ -288,23 +292,32 @@ class BaseAppSettingsHelper:
 
         if setting_name in self._replacement_settings:
             deprecations = self._replacement_settings[setting_name]
-            depr = deprecations[0]
-            if len(deprecations) == 1 and self.is_overridden(depr.setting_name):
-                depr.warn_if_user_using_old_setting_name()
-                return self.get_user_defined_value(depr.setting_name)
-
+            for item in deprecations:
+                if(
+                    (len(deprecations) == 1 or item.setting_name == accept_deprecated) or
+                    self.is_overridden(item.setting_name)
+                ):
+                    item.warn_if_user_using_old_setting_name()
+                    return self.get_user_defined_value(item.setting_name)
         return self.get_default_value(setting_name)
 
-    def is_value_from_deprecated_setting(self, setting_name):
+    def is_value_from_deprecated_setting(self, setting_name, accept_deprecated=''):
         """
         Returns a boolean to help developers determine where a setting value
         came from when dealing settings that replace deprecated settings.
         Returns ``True`` when:
 
-        -   The setting named by ``setting_name`` is a replacement for a
-            deprecated setting.
-        -   The value returned by self.get() for the setting comes from a
-            user-defined Django setting that uses the deprecated setting name
+        The setting named by ``setting_name`` is a replacement for a single
+        deprecated setting AND the user is using the deprecated setting
+        in their Django settings to override behaviour.
+
+        OR
+
+        The setting named by ``setting_name`` is a replacement for multiple
+        deprecated settings AND ``accept_deprecated`` has been used to specify
+        the name of one of those deprecated settings AND the user is using that
+        specific deprecated setting in their Django settings to override
+        behaviour.
         """
         if not self.in_defaults(setting_name):
             raise ValueError('%s is not a valid setting name' % setting_name)
@@ -313,21 +326,29 @@ class BaseAppSettingsHelper:
             setting_name in self._replacement_settings
         ):
             deprecations = self._replacement_settings[setting_name]
-            return len(deprecations) == 1 and self.is_overridden(
-                deprecations[0].setting_name)
+            for item in deprecations:
+                if(
+                    (len(deprecations) == 1 or item.setting_name == accept_deprecated) and
+                    self.is_overridden(item.setting_name)
+                ):
+                    return True
         return False
 
-    def get(self, setting_name, enforce_type=None, silence_warnings=False):
+    def get(self, setting_name, accept_deprecated='', enforce_type=None):
         """
-        A wrapper for self.get_value(), that caches the raw setting value
-        for faster future access, and, optionally checks that the
-        raw value type matches the supplied ``enforce_type`` value type (or
-        tuple of value types).
+        A wrapper for self._get_raw_value(), that caches the raw setting value
+        for faster future access, and (if ``enforce_type`` is supplied) checks
+        that the raw value is the required type.
+
+        In situations where the named setting replaces multiple deprecated
+        settings, the ``accept_deprecated`` keyword argument can be used to
+        specify which of those deprecated settings to accept as the value.
         """
         if setting_name in self._raw_cache:
             return self._raw_cache[setting_name]
 
-        result = self._get_raw_setting_value(setting_name)
+        result = self._get_raw_value(setting_name, accept_deprecated=accept_deprecated)
+
         if enforce_type and not isinstance(result, enforce_type):
             if isinstance(enforce_type, tuple):
                 msg = (
@@ -358,18 +379,22 @@ class BaseAppSettingsHelper:
         self._raw_cache[setting_name] = result
         return result
 
-    def get_model(self, setting_name):
+    def get_model(self, setting_name, accept_deprecated=''):
         """
-        Returns a Django model referenced by an app setting who's value should
-        be a 'model string' in the format 'app_label.model_name'.
+        Returns a Django model referenced by an app setting where the value is
+        expected to be a 'model string' in the format 'app_label.model_name'.
 
         Raises an ``ImproperlyConfigured`` error if the setting value is not
         in the correct format, or refers to a model that is not available.
+
+        In situations where the named setting replaces multiple deprecated
+        settings, the ``accept_deprecated`` keyword argument can be used to
+        specify which of those deprecated settings to accept as the raw value.
         """
         if setting_name in self._models_cache:
             return self._models_cache[setting_name]
 
-        raw_value = self.get(setting_name, enforce_type=str)
+        raw_value = self.get(setting_name, enforce_type=str, accept_deprecated=accept_deprecated)
 
         try:
             from django.apps import apps  # delay import until needed
@@ -398,10 +423,10 @@ class BaseAppSettingsHelper:
                 value=raw_value
             )
 
-    def get_module(self, setting_name):
+    def get_module(self, setting_name, accept_deprecated=''):
         """
-        Returns a python module referenced by an app setting who's value should
-        be a valid python import path, defined as a string.
+        Returns a python module referenced by an app setting where the value is
+        expected to be a valid python import path, defined as a string.
 
         Will not work for relative paths.
 
@@ -411,7 +436,7 @@ class BaseAppSettingsHelper:
         if setting_name in self._modules_cache:
             return self._modules_cache[setting_name]
 
-        raw_value = self.get(setting_name, enforce_type=str)
+        raw_value = self.get(setting_name, enforce_type=str, accept_deprecated=accept_deprecated)
 
         try:
             result = self._do_import(raw_value)
@@ -430,10 +455,10 @@ class BaseAppSettingsHelper:
                 value=raw_value
             )
 
-    def get_object(self, setting_name):
+    def get_object(self, setting_name, accept_deprecated=''):
         """
-        Returns a python class, method, or other object referenced by
-        an app setting who's value should be a valid python import path,
+        Returns a python class, method, or other object referenced by an app
+        setting where the value is expected to be a valid python import path,
         defined as a string.
 
         Will not work for relative paths.
@@ -445,7 +470,7 @@ class BaseAppSettingsHelper:
         if setting_name in self._objects_cache:
             return self._objects_cache[setting_name]
 
-        raw_value = self.get(setting_name, enforce_type=str)
+        raw_value = self.get(setting_name, enforce_type=str, accept_deprecated=accept_deprecated)
 
         try:
             module_path, object_name = raw_value.rsplit(".", 1)
