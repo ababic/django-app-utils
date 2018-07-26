@@ -118,6 +118,13 @@ class BaseAppSettingsHelper:
         """A simple wrapper for importlib.import_module()."""
         return import_module(module_path)
 
+    @staticmethod
+    def _make_cache_key(setting_name, accept_deprecated):
+        key = setting_name
+        if accept_deprecated:
+            key += '_accepting_' + str(accept_deprecated)
+        return key
+
     def _load_defaults(self):
         """
         Sets the object's ``_defaults`` attibute value to a dictionary for
@@ -344,8 +351,9 @@ class BaseAppSettingsHelper:
         settings, the ``accept_deprecated`` keyword argument can be used to
         specify which of those deprecated settings to accept as the value.
         """
-        if setting_name in self._raw_cache:
-            return self._raw_cache[setting_name]
+        cache_key = self._make_cache_key(setting_name, accept_deprecated)
+        if cache_key in self._raw_cache:
+            return self._raw_cache[cache_key]
 
         result = self._get_raw_value(setting_name, accept_deprecated=accept_deprecated)
 
@@ -376,7 +384,7 @@ class BaseAppSettingsHelper:
                 additional_text=msg,
                 **text_format_kwargs
             )
-        self._raw_cache[setting_name] = result
+        self._raw_cache[cache_key] = result
         return result
 
     def get_model(self, setting_name, accept_deprecated=''):
@@ -391,15 +399,16 @@ class BaseAppSettingsHelper:
         settings, the ``accept_deprecated`` keyword argument can be used to
         specify which of those deprecated settings to accept as the raw value.
         """
-        if setting_name in self._models_cache:
-            return self._models_cache[setting_name]
+        cache_key = self._make_cache_key(setting_name, accept_deprecated)
+        if cache_key in self._models_cache:
+            return self._models_cache[cache_key]
 
         raw_value = self.get(setting_name, enforce_type=str, accept_deprecated=accept_deprecated)
 
         try:
             from django.apps import apps  # delay import until needed
             result = apps.get_model(raw_value)
-            self._models_cache[setting_name] = result
+            self._models_cache[cache_key] = result
             return result
         except ValueError:
             self.raise_setting_error(
@@ -433,14 +442,15 @@ class BaseAppSettingsHelper:
         Raises an ``ImproperlyConfigured`` error if the setting value is not
         a valid import path.
         """
-        if setting_name in self._modules_cache:
-            return self._modules_cache[setting_name]
+        cache_key = self._make_cache_key(setting_name, accept_deprecated)
+        if cache_key in self._modules_cache:
+            return self._modules_cache[cache_key]
 
         raw_value = self.get(setting_name, enforce_type=str, accept_deprecated=accept_deprecated)
 
         try:
             result = self._do_import(raw_value)
-            self._modules_cache[setting_name] = result
+            self._modules_cache[cache_key] = result
             return result
         except ImportError:
             self.raise_setting_error(
@@ -467,8 +477,9 @@ class BaseAppSettingsHelper:
         a valid import path, or the object cannot be found in the specified
         module.
         """
-        if setting_name in self._objects_cache:
-            return self._objects_cache[setting_name]
+        cache_key = self._make_cache_key(setting_name, accept_deprecated)
+        if cache_key in self._objects_cache:
+            return self._objects_cache[cache_key]
 
         raw_value = self.get(setting_name, enforce_type=str, accept_deprecated=accept_deprecated)
 
@@ -488,7 +499,7 @@ class BaseAppSettingsHelper:
             )
         try:
             result = getattr(self._do_import(module_path), object_name)
-            self._objects_cache[setting_name] = result
+            self._objects_cache[cache_key] = result
             return result
         except ImportError:
             self.raise_setting_error(
