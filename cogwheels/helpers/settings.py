@@ -294,7 +294,7 @@ class BaseAppSettingsHelper:
             deprecations = self._replacement_settings[setting_name]
             for item in deprecations:
                 if(
-                    (len(deprecations) == 1 or item.setting_name == accept_deprecated) or
+                    (len(deprecations) == 1 or item.setting_name == accept_deprecated) and
                     self.is_overridden(item.setting_name)
                 ):
                     item.warn_if_user_using_old_setting_name()
