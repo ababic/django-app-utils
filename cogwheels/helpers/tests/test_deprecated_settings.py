@@ -160,14 +160,17 @@ class TestMultipleReplacementSetting(AppSettingTestCase):
         )
         # Instead, developers can specify which deprecated setting in particular they are willing to
         # use a value from, and override values for those settings will be returned.
-        self.assertEqual(
-            self.appsettingshelper.get('REPLACES_MULTIPLE', accept_deprecated='REPLACED_SETTING_ONE'),
-            'overridden-one'
-        )
-        self.assertEqual(
-            self.appsettingshelper.get('REPLACES_MULTIPLE', accept_deprecated='REPLACED_SETTING_TWO'),
-            'overridden-two'
-        )
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                self.appsettingshelper.get('REPLACES_MULTIPLE', accept_deprecated='REPLACED_SETTING_ONE'),
+                'overridden-one'
+            )
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(
+                self.appsettingshelper.get('REPLACES_MULTIPLE', accept_deprecated='REPLACED_SETTING_TWO'),
+                'overridden-two'
+            )
         # But the the default value will still be returned if the specified deprecated setting has
         # not been overridden
         self.assertIs(
