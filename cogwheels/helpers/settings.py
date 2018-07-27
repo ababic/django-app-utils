@@ -319,7 +319,16 @@ class BaseAppSettingsHelper:
         setting in their Django settings to override behaviour.
         """
         if not self.in_defaults(setting_name):
-            raise ValueError('%s is not a valid setting name' % setting_name)
+            raise ValueError("'%s' is not a valid setting name" % setting_name)
+        if not self.in_defaults(deprecated_setting_name):
+            raise ValueError("'%s' is not a valid setting name" % deprecated_setting_name)
+        if deprecated_setting_name not in self._deprecated_settings:
+            raise ValueError(
+                "The '%s' setting is not deprecated. When using "
+                "settings.is_value_from_deprecated_setting(), the deprecated "
+                "setting should be supplied as the second argument."
+                % deprecated_setting_name
+            )
         if(
             not self.is_overridden(setting_name) and
             setting_name in self._replacement_settings
