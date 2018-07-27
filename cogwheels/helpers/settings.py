@@ -326,8 +326,8 @@ class BaseAppSettingsHelper:
             raise ValueError(
                 "The '%s' setting is not deprecated. When using "
                 "settings.is_value_from_deprecated_setting(), the deprecated "
-                "setting should be supplied as the second argument."
-                % deprecated_setting_name
+                "setting name should be supplied as the second argument." %
+                deprecated_setting_name
             )
         if(
             not self.is_overridden(setting_name) and
