@@ -13,7 +13,7 @@ from cogwheels.exceptions.deprecations import (
     IncorrectDeprecationsValueType, InvalidDeprecationDefinition,
     DuplicateDeprecationError,
 )
-from .utils import AttrRefererToMethodHelper
+from .utils import AttrReferToMethodHelper
 
 
 class BaseAppSettingsHelper:
@@ -41,9 +41,9 @@ class BaseAppSettingsHelper:
         self.reset_caches()
 
         # Define 'attribute reference' shortcuts
-        self.models = AttrRefererToMethodHelper(self, 'get_model')
-        self.modules = AttrRefererToMethodHelper(self, 'get_module')
-        self.objects = AttrRefererToMethodHelper(self, 'get_object')
+        self.models = AttrReferToMethodHelper(self, 'get_model')
+        self.modules = AttrReferToMethodHelper(self, 'get_module')
+        self.objects = AttrReferToMethodHelper(self, 'get_object')
 
         setting_changed.connect(self.reset_caches, dispatch_uid=id(self))
 
