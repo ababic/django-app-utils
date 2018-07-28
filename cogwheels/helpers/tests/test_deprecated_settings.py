@@ -53,6 +53,7 @@ class TestRenamedSetting(AppSettingTestCase):
             str(cm.warning)
         )
 
+
 class TestReplacedSetting(AppSettingTestCase):
 
     def test_referencing_old_setting_on_settings_module_raises_warning(self):
