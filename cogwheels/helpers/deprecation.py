@@ -71,7 +71,7 @@ class DeprecatedAppSetting:
             return 'the next version'
         return 'two versions time'
 
-    def _raise_warning(self, message, **replacement_kwargs):
+    def _raise_warning(self, message, stacklevel):
         if self.additional_guidance:
             message += ' ' + self.additional_guidance
         warnings.warn(
@@ -81,20 +81,21 @@ class DeprecatedAppSetting:
                 replacement_name=self.replacement_name,
                 removed_in_version=self.get_removed_in_version_text()
             ),
-            category=self.warning_category
+            category=self.warning_category,
+            stacklevel=stacklevel
         )
 
-    def warn_if_setting_attribute_referenced(self):
+    def warn_if_setting_attribute_referenced(self, stacklevel):
         if self.replacement_name is not None:
             if self.is_renamed:
-                self._raise_warning(RENAMED_ATTRIBUTE_WARNING_FORMAT)
+                self._raise_warning(RENAMED_ATTRIBUTE_WARNING_FORMAT, stacklevel)
                 return
-            self._raise_warning(REPLACED_ATTRIBUTE_WARNING_FORMAT)
+            self._raise_warning(REPLACED_ATTRIBUTE_WARNING_FORMAT, stacklevel)
             return
-        self._raise_warning(SIMPLE_DEPRECATION_WARNING_FORMAT)
+        self._raise_warning(SIMPLE_DEPRECATION_WARNING_FORMAT, stacklevel)
 
-    def warn_if_user_using_old_setting_name(self):
+    def warn_if_user_using_old_setting_name(self, stacklevel):
         if self.is_renamed:
-            self._raise_warning(RENAMED_OLD_SETTING_USED_WARNING_FORMAT)
+            self._raise_warning(RENAMED_OLD_SETTING_USED_WARNING_FORMAT, stacklevel)
             return
-        self._raise_warning(REPLACED_OLD_SETTING_USER_WARNING_FORMAT)
+        self._raise_warning(REPLACED_OLD_SETTING_USER_WARNING_FORMAT, stacklevel)
