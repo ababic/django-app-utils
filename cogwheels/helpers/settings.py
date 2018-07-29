@@ -58,7 +58,7 @@ class BaseAppSettingsHelper:
         if not self.in_defaults(name):
             raise AttributeError("{} object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-        return self.get(name, warning_stacklevel=6)
+        return self.get(name, warning_stacklevel=5)
 
     def _set_prefix(self, init_supplied_val):
         """
@@ -345,7 +345,7 @@ class BaseAppSettingsHelper:
         return False
 
     def get(self, setting_name, accept_deprecated='', enforce_type=None,
-            suppress_warnings=False, warning_stacklevel=5):
+            suppress_warnings=False, warning_stacklevel=4):
         """
         A wrapper for self._get_raw_value(), that caches the raw setting value
         for faster future access, and (if ``enforce_type`` is supplied) checks
@@ -397,7 +397,7 @@ class BaseAppSettingsHelper:
         return result
 
     def get_model(self, setting_name, accept_deprecated='',
-                  suppress_warnings=False, warning_stacklevel=6):
+                  suppress_warnings=False, warning_stacklevel=5):
         """
         Returns a Django model referenced by an app setting where the value is
         expected to be a 'model string' in the format 'app_label.model_name'.
@@ -449,7 +449,7 @@ class BaseAppSettingsHelper:
             )
 
     def get_module(self, setting_name, accept_deprecated='',
-                   suppress_warnings=False, warning_stacklevel=6):
+                   suppress_warnings=False, warning_stacklevel=5):
         """
         Returns a Python module referenced by an app setting where the value is
         expected to be a valid, absolute Python import path, defined as a
@@ -488,7 +488,7 @@ class BaseAppSettingsHelper:
             )
 
     def get_object(self, setting_name, accept_deprecated='',
-                   suppress_warnings=False, warning_stacklevel=6):
+                   suppress_warnings=False, warning_stacklevel=5):
         """
         Returns a python class, method, or other object referenced by an app
         setting where the value is expected to be a valid, absolute Python
