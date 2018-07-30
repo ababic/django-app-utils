@@ -26,6 +26,10 @@ INCORRECT_FORMAT_MODEL = 'cogwheels.tests.DefaultModel'
 
 UNAVAILABLE_MODEL = 'cogwheels.UnavailableModel'
 
+VALID_MODULE = 'cogwheels.tests.modules.default_module'
+
+UNAVAILABLE_MODULE = 'cogwheels.tests.modules.imaginary_module'
+
 VALID_OBJECT = 'cogwheels.tests.classes.DefaultClass'
 
 INCORRECT_FORMAT_OBJECT = 'DefaultClass'
@@ -34,16 +38,18 @@ MODULE_UNAVAILABLE_OBJECT = 'cogwheels.imaginary_module.Class'
 
 OBJECT_UNAVAILABLE_OBJECT = 'cogwheels.tests.classes.NonExistent'
 
-VALID_MODULE = 'cogwheels.tests.modules.default_module'
-
-UNAVAILABLE_MODULE = 'cogwheels.tests.modules.imaginary_module'
-
 
 # -----------------------------------------------------------------------------
 # Deprecations
 # -----------------------------------------------------------------------------
 
 DEPRECATED_SETTING = 'deprecated'
+
+DEPRECATED_MODEL_SETTING = VALID_MODEL
+
+DEPRECATED_MODULE_SETTING = VALID_MODULE
+
+DEPRECATED_OBJECT_SETTING = VALID_OBJECT
 
 RENAMED_SETTING_OLD = 'renamed_old'
 
