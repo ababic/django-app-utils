@@ -353,8 +353,7 @@ class BaseAppSettingsHelper:
         specify which of those deprecated settings to accept as the value.
         """
         if(
-            check_if_setting_deprecated and
-            not suppress_warnings and
+            check_if_setting_deprecated and not suppress_warnings and
             setting_name in self._deprecated_settings
         ):
             depr = self._deprecated_settings[setting_name]
