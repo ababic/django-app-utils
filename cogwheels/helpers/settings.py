@@ -358,7 +358,7 @@ class BaseAppSettingsHelper:
             setting_name in self._deprecated_settings
         ):
             depr = self._deprecated_settings[setting_name]
-            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+            depr.warn_if_deprecated_setting_value_requested(warning_stacklevel)
 
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._raw_cache:
@@ -416,7 +416,7 @@ class BaseAppSettingsHelper:
         """
         if not suppress_warnings and setting_name in self._deprecated_settings:
             depr = self._deprecated_settings[setting_name]
-            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+            depr.warn_if_deprecated_setting_value_requested(warning_stacklevel)
 
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._models_cache:
@@ -470,7 +470,7 @@ class BaseAppSettingsHelper:
         """
         if not suppress_warnings and setting_name in self._deprecated_settings:
             depr = self._deprecated_settings[setting_name]
-            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+            depr.warn_if_deprecated_setting_value_requested(warning_stacklevel)
 
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._modules_cache:
@@ -515,7 +515,7 @@ class BaseAppSettingsHelper:
         """
         if not suppress_warnings and setting_name in self._deprecated_settings:
             depr = self._deprecated_settings[setting_name]
-            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+            depr.warn_if_deprecated_setting_value_requested(warning_stacklevel)
 
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._objects_cache:
