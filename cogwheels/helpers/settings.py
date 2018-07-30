@@ -341,7 +341,8 @@ class BaseAppSettingsHelper:
         return False
 
     def get(self, setting_name, accept_deprecated='', enforce_type=None,
-            suppress_warnings=False, warning_stacklevel=2):
+            check_if_setting_deprecated=True, suppress_warnings=False,
+            warning_stacklevel=2):
         """
         A wrapper for self._get_raw_value(), that caches the raw setting value
         for faster future access, and (if ``enforce_type`` is supplied) checks
@@ -351,7 +352,11 @@ class BaseAppSettingsHelper:
         settings, the ``accept_deprecated`` keyword argument can be used to
         specify which of those deprecated settings to accept as the value.
         """
-        if not suppress_warnings and setting_name in self._deprecated_settings:
+        if(
+            check_if_setting_deprecated and
+            not suppress_warnings and
+            setting_name in self._deprecated_settings
+        ):
             depr = self._deprecated_settings[setting_name]
             depr.warn_if_setting_attribute_referenced(warning_stacklevel)
 
@@ -421,6 +426,7 @@ class BaseAppSettingsHelper:
             setting_name,
             enforce_type=str,
             accept_deprecated=accept_deprecated,
+            check_if_setting_deprecated=False,
             suppress_warnings=suppress_warnings,
             warning_stacklevel=warning_stacklevel + 1,
         )
@@ -474,6 +480,7 @@ class BaseAppSettingsHelper:
             setting_name,
             enforce_type=str,
             accept_deprecated=accept_deprecated,
+            check_if_setting_deprecated=False,
             suppress_warnings=suppress_warnings,
             warning_stacklevel=warning_stacklevel + 1,
         )
@@ -518,6 +525,7 @@ class BaseAppSettingsHelper:
             setting_name,
             enforce_type=str,
             accept_deprecated=accept_deprecated,
+            check_if_setting_deprecated=False,
             suppress_warnings=suppress_warnings,
             warning_stacklevel=warning_stacklevel + 1,
         )
