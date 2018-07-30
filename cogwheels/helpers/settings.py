@@ -58,7 +58,7 @@ class BaseAppSettingsHelper:
         if not self.in_defaults(name):
             raise AttributeError("{} object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-        return self.get(name, warning_stacklevel=5)
+        return self.get(name, warning_stacklevel=3)
 
     def _set_prefix(self, init_supplied_val):
         """
@@ -291,10 +291,6 @@ class BaseAppSettingsHelper:
         If no override value was found in the Django setting, then the
         relevant value from the defaults module is returned.
         """
-        if not suppress_warnings and setting_name in self._deprecated_settings:
-            depr = self._deprecated_settings[setting_name]
-            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
-
         if self.is_overridden(setting_name):
             return self.get_user_defined_value(setting_name)
 
@@ -345,7 +341,7 @@ class BaseAppSettingsHelper:
         return False
 
     def get(self, setting_name, accept_deprecated='', enforce_type=None,
-            suppress_warnings=False, warning_stacklevel=4):
+            suppress_warnings=False, warning_stacklevel=2):
         """
         A wrapper for self._get_raw_value(), that caches the raw setting value
         for faster future access, and (if ``enforce_type`` is supplied) checks
@@ -355,6 +351,10 @@ class BaseAppSettingsHelper:
         settings, the ``accept_deprecated`` keyword argument can be used to
         specify which of those deprecated settings to accept as the value.
         """
+        if not suppress_warnings and setting_name in self._deprecated_settings:
+            depr = self._deprecated_settings[setting_name]
+            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._raw_cache:
             return self._raw_cache[cache_key]
@@ -363,7 +363,7 @@ class BaseAppSettingsHelper:
             setting_name,
             accept_deprecated=accept_deprecated,
             suppress_warnings=suppress_warnings,
-            warning_stacklevel=warning_stacklevel,
+            warning_stacklevel=warning_stacklevel + 1,
         )
 
         if enforce_type and not isinstance(result, enforce_type):
@@ -397,7 +397,7 @@ class BaseAppSettingsHelper:
         return result
 
     def get_model(self, setting_name, accept_deprecated='',
-                  suppress_warnings=False, warning_stacklevel=5):
+                  suppress_warnings=False, warning_stacklevel=3):
         """
         Returns a Django model referenced by an app setting where the value is
         expected to be a 'model string' in the format 'app_label.model_name'.
@@ -409,6 +409,10 @@ class BaseAppSettingsHelper:
         settings, the ``accept_deprecated`` keyword argument can be used to
         specify which of those deprecated settings to accept as the raw value.
         """
+        if not suppress_warnings and setting_name in self._deprecated_settings:
+            depr = self._deprecated_settings[setting_name]
+            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._models_cache:
             return self._models_cache[cache_key]
@@ -418,7 +422,7 @@ class BaseAppSettingsHelper:
             enforce_type=str,
             accept_deprecated=accept_deprecated,
             suppress_warnings=suppress_warnings,
-            warning_stacklevel=warning_stacklevel,
+            warning_stacklevel=warning_stacklevel + 1,
         )
 
         try:
@@ -449,7 +453,7 @@ class BaseAppSettingsHelper:
             )
 
     def get_module(self, setting_name, accept_deprecated='',
-                   suppress_warnings=False, warning_stacklevel=5):
+                   suppress_warnings=False, warning_stacklevel=3):
         """
         Returns a Python module referenced by an app setting where the value is
         expected to be a valid, absolute Python import path, defined as a
@@ -458,6 +462,10 @@ class BaseAppSettingsHelper:
         Raises an ``ImproperlyConfigured`` error if the setting value is not
         a valid import path.
         """
+        if not suppress_warnings and setting_name in self._deprecated_settings:
+            depr = self._deprecated_settings[setting_name]
+            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._modules_cache:
             return self._modules_cache[cache_key]
@@ -467,7 +475,7 @@ class BaseAppSettingsHelper:
             enforce_type=str,
             accept_deprecated=accept_deprecated,
             suppress_warnings=suppress_warnings,
-            warning_stacklevel=warning_stacklevel,
+            warning_stacklevel=warning_stacklevel + 1,
         )
 
         try:
@@ -488,7 +496,7 @@ class BaseAppSettingsHelper:
             )
 
     def get_object(self, setting_name, accept_deprecated='',
-                   suppress_warnings=False, warning_stacklevel=5):
+                   suppress_warnings=False, warning_stacklevel=3):
         """
         Returns a python class, method, or other object referenced by an app
         setting where the value is expected to be a valid, absolute Python
@@ -498,6 +506,10 @@ class BaseAppSettingsHelper:
         a valid import path, or the object cannot be found in the specified
         module.
         """
+        if not suppress_warnings and setting_name in self._deprecated_settings:
+            depr = self._deprecated_settings[setting_name]
+            depr.warn_if_setting_attribute_referenced(warning_stacklevel)
+
         cache_key = self._make_cache_key(setting_name, accept_deprecated)
         if cache_key in self._objects_cache:
             return self._objects_cache[cache_key]
@@ -507,7 +519,7 @@ class BaseAppSettingsHelper:
             enforce_type=str,
             accept_deprecated=accept_deprecated,
             suppress_warnings=suppress_warnings,
-            warning_stacklevel=warning_stacklevel,
+            warning_stacklevel=warning_stacklevel + 1,
         )
         try:
             module_path, object_name = raw_value.rsplit(".", 1)
