@@ -3,7 +3,7 @@ import warnings
 
 COMMON_REQUESTED_WARNING_FORMAT = (
     "Please update your code to reference the new setting, as continuing to "
-    "reference {setting_name} will cause an error to be raised once support "
+    "reference {setting_name} will cause an exception to be raised once support "
     "is removed in {removed_in_version}."
 )
 RENAMED_SETTING_REQUESTED_WARNING_FORMAT = (
@@ -18,7 +18,7 @@ REPLACED_SETTING_REQUESTED_WARNING_FORMAT = (
 SIMPLE_DEPRECATION_WARNING_FORMAT = (
     "The {setting_name} app setting is deprecated. Please remove any "
     "references to it from your project, as continuing to reference it will "
-    "cause an error to be raised once support is removed in "
+    "cause an exception to be raised once support is removed in "
     "{removed_in_version}."
 )
 
