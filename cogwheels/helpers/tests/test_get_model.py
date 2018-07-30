@@ -81,6 +81,14 @@ class TestReplacedModelSetting(AppSettingTestCase):
                 str(w[0])
             )
 
+    def test_multiple_references_to_deprecated_setting_raises_a_warning_each_time(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.appsettingshelper.get_model('REPLACED_MODEL_SETTING')
+            self.appsettingshelper.get_model('REPLACED_MODEL_SETTING')
+            self.appsettingshelper.get_model('REPLACED_MODEL_SETTING')
+            self.assertEqual(len(w), 3)
+
     def test_no_warnings_raised_by_replacement_setting_by_default(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")

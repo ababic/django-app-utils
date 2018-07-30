@@ -90,6 +90,14 @@ class TestDeprecatedSetting(AppSettingTestCase):
                 str(w[0])
             )
 
+    def test_multiple_references_to_deprecated_setting_raises_a_warning_each_time(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.appsettingshelper.get('DEPRECATED_SETTING')
+            self.appsettingshelper.get('DEPRECATED_SETTING')
+            self.appsettingshelper.get('DEPRECATED_SETTING')
+            self.assertEqual(len(w), 3)
+
 
 class TestRenamedSetting(AppSettingTestCase):
 
@@ -107,6 +115,14 @@ class TestRenamedSetting(AppSettingTestCase):
                 "in the next version.",
                 str(w[0])
             )
+
+    def test_multiple_references_to_deprecated_setting_raises_a_warning_each_time(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.appsettingshelper.get('RENAMED_SETTING_OLD')
+            self.appsettingshelper.get('RENAMED_SETTING_OLD')
+            self.appsettingshelper.get('RENAMED_SETTING_OLD')
+            self.assertEqual(len(w), 3)
 
     @override_settings(COGWHEELS_TESTS_RENAMED_SETTING_OLD='ooolaalaa')
     def test_user_defined_setting_with_old_name_still_used_when_new_setting_referenced(self):
