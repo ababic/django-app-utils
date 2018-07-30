@@ -58,7 +58,7 @@ class BaseAppSettingsHelper:
         if not self.in_defaults(name):
             raise AttributeError("{} object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-        return self.get(name, warning_stacklevel=3)
+        return self.get(name, warning_stacklevel=4)
 
     def _set_prefix(self, init_supplied_val):
         """
@@ -269,7 +269,7 @@ class BaseAppSettingsHelper:
         raise error_class(message)
 
     def _get_raw_value(self, setting_name, accept_deprecated='',
-                       suppress_warnings=False, warning_stacklevel=4):
+                       suppress_warnings=False, warning_stacklevel=3):
         """
         Returns the value of the app setting named by ``setting_name``,
         exactly as it has been defined in the defaults module or a user's
@@ -342,7 +342,7 @@ class BaseAppSettingsHelper:
 
     def get(self, setting_name, accept_deprecated='', enforce_type=None,
             check_if_setting_deprecated=True, suppress_warnings=False,
-            warning_stacklevel=2):
+            warning_stacklevel=3):
         """
         A wrapper for self._get_raw_value(), that caches the raw setting value
         for faster future access, and (if ``enforce_type`` is supplied) checks
