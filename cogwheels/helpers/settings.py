@@ -209,7 +209,7 @@ class BaseAppSettingsHelper:
         self._replacement_settings = defaultdict(list)
 
         for item in self._deprecations:
-            item.prefix = self._prefix
+            item.prefix = self.get_prefix()
 
             if not self.in_defaults(item.setting_name):
                 raise InvalidDeprecationDefinition(
