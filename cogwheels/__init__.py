@@ -8,6 +8,6 @@ from .exceptions import ( # noqa
     DefaultValueFormatInvalid, DefaultValueNotImportable,
     OverrideValueError, OverrideValueTypeInvalid,
     OverrideValueFormatInvalid, OverrideValueNotImportable,
-    UnknownSettingNameError,
+    UnknownSettingNameError
 )
 from .helpers import BaseAppSettingsHelper, DeprecatedAppSetting # noqa
